@@ -77,8 +77,13 @@ primer_termino::=
 termino::=
     numero:e1 factor:e2 {: 
                     if (e2 >= 0) {
-                        imp("Multiplica " + e1.toString());
                         RESULT = e1 * multiplicando;
+                        if (!no2.lexema.isEmpty()){
+                            imp(e1+"<-*->"+no2.lexema); 
+                        } else 
+                        {
+                            imp(e1+"");
+                        }
                         multiplicando = 1;
                     } else {
                         System.out.println("no trae");

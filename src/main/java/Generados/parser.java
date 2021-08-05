@@ -271,6 +271,14 @@ public class parser extends java_cup.runtime.lr_parser {
                     if (e2 >= 0) {
                         imp("Multiplica " + e1.toString());
                         RESULT = e1 * multiplicando;
+                        if (!no2.lexema.isEmpty()){
+                            imp(e1+"<-*->"+no2.lexema); 
+                            actual.agregar(e1+"", "*", no2.lexema, no_nodos);
+                            actual.imprimir(actual.actual);
+                        } else 
+                        {
+                            imp(e1+"");
+                        }
                         multiplicando = 1;
                     } else {
                         System.out.println("no trae");
