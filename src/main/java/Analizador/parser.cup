@@ -1,0 +1,115 @@
+package Generados;
+
+import java_cup.runtime.Symbol;
+import java_cup.runtime.XMLElement;
+import Estructura.*;
+
+parser code
+{:
+    public int multiplicando = 1;
+    public int sumando = 0;
+    public int no_nodos = 0;
+    public int resultado = 0;
+    public Arbol actual = new Arbol();
+    public Arbol aux = new Arbol();
+    public NodoArbol no1 = new NodoArbol();
+    public NodoArbol no2 = new NodoArbol();
+
+    public void syntax_error(Symbol cur_token) {
+        System.out.println(" Se esperaban: ");
+        String esperados = "";
+        for (int i = 0; i < expected_token_ids().size(); i++){
+            esperados += symbl_name_from_id(expected_token_ids().get(i))+"-";
+        }
+        System.out.print(esperados);
+    }
+
+    public void report_fatal_error(String message, Object info) {
+        System.out.println("reportfatal "+message+info);
+    }
+    
+    public void report_fatal_error(Symbol cur) {
+        System.out.println("unrecovered_syntax_error");
+    }
+
+    public void imp(String texto){
+        System.out.println(texto);
+    }
+
+    protected int error_sync_size() {
+        return 1;
+    }
+
+:};
+
+terminal MAS, POR, PA, PC, NUMERO, ERRORLEX;
+
+non terminal inicio;
+non terminal Integer primer_termino, operaciones,termino,numero,factor,resto;
+
+precedence left MAS;
+precedence left POR;
+
+start with inicio;
+
+inicio::=
+    operaciones:e1 {: resultado = e1; :}
+;
+
+operaciones::=
+    primer_termino:e1 resto {: 
+        imp("Hasta arriba"+ e1); 
+        RESULT = e1 + sumando; 
+        sumando = 0;
+        actual.suma_nodos(actual, aux); :}
+;
+
+primer_termino::=
+    termino:e1      {:
+        RESULT = e1;
+        if (no2.lexema.isEmpty()){
+            no1 
+            no1 = new NodoArbol();
+        }
+                    :}
+;
+
+termino::=
+    numero:e1 factor:e2 {: 
+                    if (e2 >= 0) {
+                        imp("Multiplica " + e1.toString());
+                        RESULT = e1 * multiplicando;
+                        multiplicando = 1;
+                    } else {
+                        System.out.println("no trae");
+                        multiplicando = 1;
+                        RESULT = e1;
+                    } :}
+    | PA operaciones:e1 PC {: imp("Agrupa "); RESULT = Integer.parseInt(e1.toString()); :}
+;
+
+numero::=
+    NUMERO:e1 {:  
+                    RESULT = Integer.parseInt(e1.toString());
+                    if (no1.lexema.isEmpty()) {
+                        no1.lexema = e1.toString();
+                        no1.id = no_nodos++;
+                        no1.id_nodo = "node" + no1.id;
+                    } else {
+                        no2.lexema = e1.toString();
+                        no2.id = no_nodos++;
+                        no2.id_nodo = "node" + no2.id;
+                    } 
+            :}
+;
+
+factor::=
+    {: RESULT = -1; :}
+|   POR termino:e1 {: imp("Multiplicacion "+e1.toString()); RESULT = Integer.parseInt(e1.toString()); multiplicando *= RESULT; :}
+;
+
+resto::=
+    {: RESULT = 0; :}
+|   MAS operaciones:e1 {: imp("Continuacion "+e1.toString()); RESULT = Integer.parseInt(e1.toString()); sumando += RESULT;  :}    
+;
+
